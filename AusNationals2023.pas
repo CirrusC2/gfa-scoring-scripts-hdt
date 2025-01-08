@@ -165,6 +165,9 @@ program AusNats2023;
 // ***************************************************************************************
 // ****                                                                               ****
 // ****   Version Details                                                             ****
+// ****										      ****
+// ****   V18 - Added Support for HDT tasks (set DHT=true in DayTag var to use)	      ****
+// ****										      ****
 // ****   V17 - Fixed bugs with comp floor implementation                             ****
 // ****                                                                               ****
 // ****   V16 - Competition Floor                                                     ****
