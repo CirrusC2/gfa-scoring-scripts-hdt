@@ -12,7 +12,8 @@ program AusNats2023;
 // ****  Neil Campbell, 28 January  2019 v12                                          ****
 // ****  Neil Campbell, 20 October 2020 v13                                           ****
 // ****  Neil Campbell, 13 February 2023 V16                                          ****
-// ****  Neil Campbell, 19 March 2023 V17                                          ****
+// ****  Neil Campbell, 19 March 2023 V17                                             ****
+// ****  Nick Gilbert, 9 January 2025 V18					      ****
 // ****                                                                               ****
 // **** I N S T R U C T I O N S                                                       ****
 // **** 1. Confirm Local Rules for variations of                                      ****
