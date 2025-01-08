@@ -257,7 +257,7 @@ var
   PreStartAltLimit, PreStartGSLimitkmh, PreStartGSLimit, MinGSBelowAltTime, MinAltBelowGSTime, NbrFixes : integer;
   MinGSBelowAlt, MinAltBelowGS : double;
   PreStartLimitsInUse, PreStartLimitOK : boolean;
-  FirstPreGS, FirstPreAlt, PREDEBUG, FirstPEV, IgnoreHcap :boolean;
+  FirstPreGS, FirstPreAlt, PREDEBUG, FirstPEV : boolean;
   PreStartWarning : string;
   // event checking
   EventCount : integer;
@@ -265,6 +265,7 @@ var
   FloorInUse : Boolean;
   FloorAlt : Double;
   FloorWarning : string;
+  IgnoreHcap : boolean;
   
   
 // ***************************************************************************************
