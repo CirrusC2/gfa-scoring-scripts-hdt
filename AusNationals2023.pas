@@ -257,7 +257,7 @@ var
   PreStartAltLimit, PreStartGSLimitkmh, PreStartGSLimit, MinGSBelowAltTime, MinAltBelowGSTime, NbrFixes : integer;
   MinGSBelowAlt, MinAltBelowGS : double;
   PreStartLimitsInUse, PreStartLimitOK : boolean;
-  FirstPreGS, FirstPreAlt, PREDEBUG, FirstPEV :boolean;
+  FirstPreGS, FirstPreAlt, PREDEBUG, FirstPEV, IgnoreHcap :boolean;
   PreStartWarning : string;
   // event checking
   EventCount : integer;
@@ -331,19 +331,20 @@ begin
   //showmessage('AusNats2019v15 Start');
   
   //Extract variables from daytag  
-  Interval       	:= strtoint(ParseDayTag(DayTag,'INTERVAL'),0);
-  NumIntervals   	:= strtoint(ParseDayTag(DayTag,'NUMINTERVALS'),0);
-  IntervalBuffer 	:= strtoint(ParseDayTag(DayTag,'BUFFER'),0);
-  StartBonus     	:= strtoInt(ParseDayTag(DayTag,'STARTBONUS'),0);
-  BonusTime      	:= StrToInt(ParseDayTag(DayTag,'BONUSTIME'),0);
-  BonusWindow    	:= StrToInt(ParseDayTag(DayTag,'BONUSWINDOW'),0);
-  PEVWait        	:= StrToInt(ParseDayTag(DayTag,'PEVWAIT'),0);
-  PEVWindow      	:= StrToInt(ParseDayTag(DayTag,'PEVWINDOW'),0);
-  PEVRestart      	:= StrToInt(ParseDayTag(DayTag,'PEVRESTART'),0);
-  PreStartAltLimit	:= StrToInt(ParseDayTag(DayTag,'PRESTARTALT'),0);
+  Interval       	    := strtoint(ParseDayTag(DayTag,'INTERVAL'),0);
+  NumIntervals   	    := strtoint(ParseDayTag(DayTag,'NUMINTERVALS'),0);
+  IntervalBuffer 	    := strtoint(ParseDayTag(DayTag,'BUFFER'),0);
+  StartBonus     	    := strtoInt(ParseDayTag(DayTag,'STARTBONUS'),0);
+  BonusTime      	    := StrToInt(ParseDayTag(DayTag,'BONUSTIME'),0);
+  BonusWindow    	    := StrToInt(ParseDayTag(DayTag,'BONUSWINDOW'),0);
+  PEVWait        	    := StrToInt(ParseDayTag(DayTag,'PEVWAIT'),0);
+  PEVWindow      	    := StrToInt(ParseDayTag(DayTag,'PEVWINDOW'),0);
+  PEVRestart      	    := StrToInt(ParseDayTag(DayTag,'PEVRESTART'),0);
+  PreStartAltLimit	    := StrToInt(ParseDayTag(DayTag,'PRESTARTALT'),0);
   PreStartGSLimitkmh	:= StrToInt(ParseDayTag(DayTag,'PRESTARTGS'),0);
-  PreStartGSLimit := round(PreStartGSLimitkmh * 1000 / 3600);
-  FloorAlt := StrToInt(ParseDayTag(DayTag,'FLOOR'),0);
+  PreStartGSLimit       := round(PreStartGSLimitkmh * 1000 / 3600);
+  FloorAlt              := StrToInt(ParseDayTag(DayTag,'FLOOR'),0);
+  IgnoreHcap            := StrToBool(ParseDayTag(DayTag,'DHT'));
 
   //showmessage('int='+ inttostr(Interval) + ' NbrInt=' + inttostr(NumIntervals) + ' IntervalBuffer=' + inttostr(IntervalBuffer));
   //showmessage('StartBonus=' + inttostr(StartBonus) + ' BonusTime=' + inttostr(BonusTime) + ' BonusWindow=' + inttostr(BonusWindow));
@@ -438,13 +439,24 @@ begin
   N     := 0;
   Nd    := 0;
   Nv    := 0;
+
+  // Check to see if we're ignoring handicaps for HDT tasking
+
   
   for i := 0 to GetArrayLength(Pilots)-1 do begin
+    
+    if not IgnoreHcap then begin
     // Use temporary double 1 td1 = handicapped distance
     Pilots[i].td1 := Pilots[i].dis / Pilots[i].Hcap*HcapBase;
 
     // Use temporary double 2 td2 = handicapped speed
     Pilots[i].td2 := Pilots[i].speed / Pilots[i].Hcap*HcapBase;
+    else
+    // This is a DHT task, so ignore handicaps
+    Pilots[i].td1 := Pilots[i].dis;
+    Pilots[i].td2 := Pilots[i].speed;
+    end;
+
 
     // Pilots hors concours are not included in day devaluation calculations
     if not Pilots[i].isHC then begin
@@ -870,4 +882,3 @@ end.
 // lon,lat: Double; 
 // d,crs: Double; distance, course to next point
 // td1,td2,td3 Double; variables may be used as temporary variables
-
