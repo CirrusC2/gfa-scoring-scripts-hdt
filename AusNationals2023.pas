@@ -1,4 +1,4 @@
-program AusNats2023;
+program AusNats2025DHT;
 // ***************************************************************************************
 // ****               S e e Y o u    S c o r i n g    S c r i p t                     ****
 // ****                                                                               ****
@@ -12,8 +12,7 @@ program AusNats2023;
 // ****  Neil Campbell, 28 January  2019 v12                                          ****
 // ****  Neil Campbell, 20 October 2020 v13                                           ****
 // ****  Neil Campbell, 13 February 2023 V16                                          ****
-// ****  Neil Campbell, 19 March 2023 V17                                             ****
-// ****  Nick Gilbert, 9 January 2025 V18					      ****
+// ****  Neil Campbell, 19 March 2023 V17                                          ****
 // ****                                                                               ****
 // **** I N S T R U C T I O N S                                                       ****
 // **** 1. Confirm Local Rules for variations of                                      ****
@@ -165,9 +164,6 @@ program AusNats2023;
 // ***************************************************************************************
 // ****                                                                               ****
 // ****   Version Details                                                             ****
-// ****										      ****
-// ****   V18 - Added Support for HDT tasks (set DHT=true in DayTag var to use)	      ****
-// ****										      ****
 // ****   V17 - Fixed bugs with comp floor implementation                             ****
 // ****                                                                               ****
 // ****   V16 - Competition Floor                                                     ****
@@ -210,13 +206,13 @@ const
 // ***************************************************************************************
 // ****  Uncomment correct class - Update values if varied by Local Rules             ****
 // ***************************************************************************************
-  //CompClass = 'Club', Dd = 200000, Md = 80000;
+  CompClass = 'Club', Dd = 200000, Md = 80000;
   //CompClass = '15m Sports', Dd = 225000, Md = 90000;
   //CompClass = 'Std', Dd = 225000, Md = 90000;
   //CompClass = '15m', Dd = 225000, Md = 90000;
   //CompClass = 'Open Sports', Dd = 250000, Md = 100000;
   //CompClass = '18m', Dd = 250000, Md = 100000;
-  CompClass = 'Open', Dd = 250000, Md = 100000;
+  //CompClass = 'Open', Dd = 250000, Md = 100000;
   //CompClass = '2-seater', Dd = 250000, Md = 100000;
 
 // ***************************************************************************************
@@ -227,13 +223,13 @@ const
 // ***************************************************************************************
 // ****  Day devaluation                                                              ****
 // ***************************************************************************************
-  UseDayDevaluation = TRUE;
-  //UseDayDevaluation = FALSE;
+  //UseDayDevaluation = TRUE;
+  UseDayDevaluation = FALSE;
     
 // ***************************************************************************************
 // ****  Other Constants                                                              ****
 // ***************************************************************************************
-  HcapBase = 1000.0;
+  HcapBase = 100.0;
   Pmax = 1000.0;         //Max available points
 
 // ***************************************************************************************
@@ -261,7 +257,7 @@ var
   PreStartAltLimit, PreStartGSLimitkmh, PreStartGSLimit, MinGSBelowAltTime, MinAltBelowGSTime, NbrFixes : integer;
   MinGSBelowAlt, MinAltBelowGS : double;
   PreStartLimitsInUse, PreStartLimitOK : boolean;
-  FirstPreGS, FirstPreAlt, PREDEBUG, FirstPEV : boolean;
+  FirstPreGS, FirstPreAlt, PREDEBUG, FirstPEV :boolean;
   PreStartWarning : string;
   // event checking
   EventCount : integer;
@@ -269,7 +265,7 @@ var
   FloorInUse : Boolean;
   FloorAlt : Double;
   FloorWarning : string;
-  IgnoreHcap : boolean;
+  IgnoreHcap: integer;
   
   
 // ***************************************************************************************
@@ -336,20 +332,20 @@ begin
   //showmessage('AusNats2019v15 Start');
   
   //Extract variables from daytag  
-  Interval       	    := strtoint(ParseDayTag(DayTag,'INTERVAL'),0);
-  NumIntervals   	    := strtoint(ParseDayTag(DayTag,'NUMINTERVALS'),0);
-  IntervalBuffer 	    := strtoint(ParseDayTag(DayTag,'BUFFER'),0);
-  StartBonus     	    := strtoInt(ParseDayTag(DayTag,'STARTBONUS'),0);
-  BonusTime      	    := StrToInt(ParseDayTag(DayTag,'BONUSTIME'),0);
-  BonusWindow    	    := StrToInt(ParseDayTag(DayTag,'BONUSWINDOW'),0);
-  PEVWait        	    := StrToInt(ParseDayTag(DayTag,'PEVWAIT'),0);
-  PEVWindow      	    := StrToInt(ParseDayTag(DayTag,'PEVWINDOW'),0);
-  PEVRestart      	    := StrToInt(ParseDayTag(DayTag,'PEVRESTART'),0);
-  PreStartAltLimit	    := StrToInt(ParseDayTag(DayTag,'PRESTARTALT'),0);
+  Interval       	:= strtoint(ParseDayTag(DayTag,'INTERVAL'),0);
+  NumIntervals   	:= strtoint(ParseDayTag(DayTag,'NUMINTERVALS'),0);
+  IntervalBuffer 	:= strtoint(ParseDayTag(DayTag,'BUFFER'),0);
+  StartBonus     	:= strtoInt(ParseDayTag(DayTag,'STARTBONUS'),0);
+  BonusTime      	:= StrToInt(ParseDayTag(DayTag,'BONUSTIME'),0);
+  BonusWindow    	:= StrToInt(ParseDayTag(DayTag,'BONUSWINDOW'),0);
+  PEVWait        	:= StrToInt(ParseDayTag(DayTag,'PEVWAIT'),0);
+  PEVWindow      	:= StrToInt(ParseDayTag(DayTag,'PEVWINDOW'),0);
+  PEVRestart      	:= StrToInt(ParseDayTag(DayTag,'PEVRESTART'),0);
+  PreStartAltLimit	:= StrToInt(ParseDayTag(DayTag,'PRESTARTALT'),0);
   PreStartGSLimitkmh	:= StrToInt(ParseDayTag(DayTag,'PRESTARTGS'),0);
-  PreStartGSLimit       := round(PreStartGSLimitkmh * 1000 / 3600);
-  FloorAlt              := StrToInt(ParseDayTag(DayTag,'FLOOR'),0);
-  IgnoreHcap            := StrToBool(ParseDayTag(DayTag,'DHT'));
+  PreStartGSLimit := round(PreStartGSLimitkmh * 1000 / 3600);
+  FloorAlt := StrToInt(ParseDayTag(DayTag,'FLOOR'),0);
+  IgnoreHcap            := StrToInt(ParseDayTag(DayTag,'DHT'),0);
 
   //showmessage('int='+ inttostr(Interval) + ' NbrInt=' + inttostr(NumIntervals) + ' IntervalBuffer=' + inttostr(IntervalBuffer));
   //showmessage('StartBonus=' + inttostr(StartBonus) + ' BonusTime=' + inttostr(BonusTime) + ' BonusWindow=' + inttostr(BonusWindow));
@@ -444,24 +440,19 @@ begin
   N     := 0;
   Nd    := 0;
   Nv    := 0;
-
-  // Check to see if we're ignoring handicaps for HDT tasking
-
   
   for i := 0 to GetArrayLength(Pilots)-1 do begin
-    
-    if not IgnoreHcap then begin
-    // Use temporary double 1 td1 = handicapped distance
-    Pilots[i].td1 := Pilots[i].dis / Pilots[i].Hcap*HcapBase;
-
-    // Use temporary double 2 td2 = handicapped speed
-    Pilots[i].td2 := Pilots[i].speed / Pilots[i].Hcap*HcapBase;
-    else
-    // This is a DHT task, so ignore handicaps
-    Pilots[i].td1 := Pilots[i].dis;
-    Pilots[i].td2 := Pilots[i].speed;
+    if (IgnoreHcap > 0) then begin
+      // This is a DHT task, so ignore handicaps
+      Pilots[i].td1 := Pilots[i].dis;
+      Pilots[i].td2 := Pilots[i].speed;
+    end
+    else begin
+      // Use temporary double 1 td1 = handicapped distance
+      Pilots[i].td1 := Pilots[i].dis / Pilots[i].Hcap*HcapBase;
+      // Use temporary double 2 td2 = handicapped speed
+      Pilots[i].td2 := Pilots[i].speed / Pilots[i].Hcap*HcapBase;
     end;
-
 
     // Pilots hors concours are not included in day devaluation calculations
     if not Pilots[i].isHC then begin
